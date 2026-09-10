@@ -1,0 +1,964 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EWTN+ for TV</title>
+<meta name="description" content="How the Zaelot team built the EWTN+ TV app for Apple TV, Android TV, and Fire TV with React Native and a single codebase: the bet, the five challenges, the assessment, and the alternatives.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add('js');</script>
+<style>
+  :root {
+    /* Zaelot Brand System (brand/tokens.css) */
+    --thunder:    #211E20;
+    --white:      #FFFFFF;
+    --zaelow:     #F3E060;
+    --dove-gray:  #707070;
+    --slate-gray: #B0B0B0;
+    --mercury:    #E5E5E5;
+    --wild-sand:  #F5F5F5;
+
+    --font: 'Instrument Sans', system-ui, sans-serif;
+
+    --web-hero:    clamp(40px, 6vw, 80px);
+    --web-h1:      clamp(28px, 4vw, 56px);
+    --web-h2:      clamp(22px, 3vw, 40px);
+    --web-h3:      clamp(18px, 2.25vw, 32px);
+    --web-h4:      clamp(15px, 1.75vw, 24px);
+    --web-body:    clamp(14px, 1.2vw, 16px);
+    --web-body-sm: 14px;
+    --web-caption: 12px;
+
+    --s-0-5: 4px; --s-1: 8px; --s-1-5: 12px; --s-2: 16px; --s-3: 24px; --s-4: 32px;
+    --s-5: 40px; --s-6: 48px; --s-7: 56px; --s-8: 64px; --s-10: 80px; --s-12: 96px;
+
+    --web-max-width:   1200px;
+    --web-margin-x:    clamp(24px, 5vw, 80px);
+    --web-section-gap: clamp(48px, 8vw, 96px);
+
+    --radius-sm: 4px; --radius-md: 8px; --radius-lg: 16px; --radius-pill: 9999px;
+
+    --shadow-sm: 0 1px 3px rgba(33,30,32,0.08);
+    --shadow-md: 0 4px 12px rgba(33,30,32,0.10);
+    --shadow-lg: 0 8px 24px rgba(33,30,32,0.12);
+
+    /* Component states, Digital Product */
+    --dp-btn-primary-bg:            #F3E060;
+    --dp-btn-primary-bg-hover:      #E0CE58;
+    --dp-btn-primary-text:          #211E20;
+    --dp-btn-primary-bg-disabled:   #E5E5E5;
+    --dp-btn-primary-text-disabled: #B0B0B0;
+    --dp-btn-secondary-text:        #211E20;
+    --dp-btn-secondary-border:      #211E20;
+    --dp-btn-secondary-bg-hover:    #F5F5F5;
+    --dp-btn-secondary-dark-text:         #FFFFFF;
+    --dp-btn-secondary-dark-border:       rgba(255,255,255,0.35);
+    --dp-btn-secondary-dark-bg-hover:     rgba(255,255,255,0.08);
+    --dp-btn-secondary-dark-border-hover: rgba(255,255,255,0.60);
+    --dp-focus-outline-light:       3px solid #211E20;
+    --dp-focus-outline-dark-zaelow: 3px solid #F3E060;
+
+    /* Dark-surface text (white at 72% over thunder ≈ #C1C0C1, 9.1:1) */
+    --on-dark-muted: rgba(255,255,255,0.72);
+    --on-dark-line:  rgba(255,255,255,0.18);
+    --on-dark-fill:  rgba(255,255,255,0.06);
+
+    /* Client asset background (EWTN+ splash) */
+    --ewtn-screen: #121B24;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: var(--font);
+    font-size: var(--web-body);
+    line-height: 1.6;
+    color: var(--thunder);
+    background: var(--white);
+    -webkit-font-smoothing: antialiased;
+  }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; }
+  p, ul, ol, dl, table, figure { margin: 0; }
+  h1, h2, h3, h4 { margin: 0; line-height: 1.15; letter-spacing: -0.01em; }
+  h1 { font-size: var(--web-hero); font-weight: 700; letter-spacing: -0.02em; }
+  h2 { font-size: var(--web-h2); font-weight: 500; }
+  h3 { font-size: var(--web-h3); font-weight: 700; }
+  h4 { font-size: var(--web-h4); font-weight: 500; }
+
+  :focus-visible { outline: var(--dp-focus-outline-light); outline-offset: 3px; }
+  .dark :focus-visible { outline: var(--dp-focus-outline-dark-zaelow); }
+
+  .skip-link {
+    position: absolute; left: var(--s-2); top: -100px;
+    background: var(--thunder); color: var(--white);
+    padding: var(--s-1) var(--s-2); border-radius: var(--radius-md);
+    font-weight: 500; text-decoration: none; z-index: 100;
+  }
+  .skip-link:focus { top: var(--s-2); }
+
+  .container { max-width: var(--web-max-width); margin: 0 auto; padding: 0 var(--web-margin-x); }
+  .prose { max-width: 62ch; }
+  .prose p + p { margin-top: var(--s-2); }
+  .muted { color: var(--dove-gray); }
+  .dark .muted { color: var(--on-dark-muted); }
+  .small { font-size: var(--web-body-sm); }
+
+  section { padding: var(--web-section-gap) 0; scroll-margin-top: 80px; }
+  .dark { background: var(--thunder); color: var(--white); }
+  .surface { background: var(--wild-sand); }
+
+  /* Eyebrow: zaelow marker + section number. Structural, repeats on every section. */
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: var(--s-1-5);
+    font-size: var(--web-body-sm); font-weight: 500; margin-bottom: var(--s-2);
+  }
+  .eyebrow::before { content: ""; width: 10px; height: 10px; background: var(--zaelow); border-radius: 2px; flex: none; }
+  .eyebrow .num { font-weight: 700; }
+  .section-head { display: grid; gap: var(--s-2); margin-bottom: var(--s-5); }
+  .section-head .prose { max-width: 70ch; }
+
+  /* Bulleted lists with a zaelow square marker */
+  .marks { list-style: none; padding: 0; display: grid; gap: var(--s-1-5); }
+  .marks li { position: relative; padding-left: var(--s-3); }
+  .marks li::before {
+    content: ""; position: absolute; left: 0; top: 0.55em;
+    width: 8px; height: 8px; background: var(--zaelow); border-radius: 2px;
+  }
+  .marks.plain li::before { background: var(--slate-gray); }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; gap: var(--s-1);
+    font-family: var(--font); font-weight: 700; font-size: 16px; line-height: 1.2;
+    padding: 12px 28px; border-radius: var(--radius-md);
+    text-decoration: none; cursor: pointer; transition: background 0.2s, border-color 0.2s;
+  }
+  .btn svg { width: 16px; height: 16px; flex: none; }
+  .btn-primary { background: var(--dp-btn-primary-bg); color: var(--dp-btn-primary-text); border: 2px solid transparent; }
+  .btn-primary:hover { background: var(--dp-btn-primary-bg-hover); }
+  .btn-primary:disabled { background: var(--dp-btn-primary-bg-disabled); color: var(--dp-btn-primary-text-disabled); cursor: not-allowed; }
+  .btn-secondary { background: transparent; color: var(--dp-btn-secondary-text); border: 2px solid var(--dp-btn-secondary-border); }
+  .btn-secondary:hover { background: var(--dp-btn-secondary-bg-hover); }
+  .dark .btn-secondary { color: var(--dp-btn-secondary-dark-text); border-color: var(--dp-btn-secondary-dark-border); }
+  .dark .btn-secondary:hover { background: var(--dp-btn-secondary-dark-bg-hover); border-color: var(--dp-btn-secondary-dark-border-hover); }
+
+  /* Header + nav */
+  .site-header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255,255,255,0.96); border-bottom: 1px solid var(--mercury);
+    backdrop-filter: saturate(1.2) blur(6px);
+  }
+  .nav { position: relative; display: flex; align-items: center; justify-content: space-between; min-height: 64px; gap: var(--s-3); }
+  .nav-logo { display: inline-flex; align-items: center; text-decoration: none; }
+  .nav-logo svg { height: 28px; width: auto; display: block; }
+  .nav-toggle {
+    display: inline-flex; align-items: center; gap: var(--s-1);
+    background: none; border: 2px solid var(--thunder); border-radius: var(--radius-md);
+    padding: 8px 14px; font: inherit; font-weight: 500; font-size: var(--web-body-sm); color: var(--thunder); cursor: pointer;
+  }
+  .nav-toggle svg { width: 18px; height: 18px; }
+  .nav-links {
+    list-style: none; margin: 0; padding: 0;
+    display: none; flex-direction: column; gap: 0;
+    position: absolute; top: 100%; left: calc(-1 * var(--web-margin-x)); right: calc(-1 * var(--web-margin-x));
+    background: var(--white); border-bottom: 1px solid var(--mercury); box-shadow: var(--shadow-md);
+    padding: var(--s-1) var(--web-margin-x) var(--s-2);
+  }
+  .nav-links.is-open { display: flex; }
+  .nav-links a {
+    display: block; text-decoration: none; font-weight: 500; font-size: var(--web-body-sm);
+    padding: var(--s-1-5) 0; border-bottom: 2px solid transparent;
+  }
+  .nav-links a:hover { border-bottom-color: var(--mercury); }
+  .nav-links a[aria-current] { border-bottom-color: var(--zaelow); }
+
+  @media (min-width: 768px) {
+    .nav-toggle { display: none; }
+    .nav-links {
+      display: flex; flex-direction: row; gap: var(--s-3);
+      position: static; background: none; border: 0; box-shadow: none; padding: 0;
+    }
+    .nav-links a { padding: 6px 0; }
+  }
+
+  /* Hero */
+  .hero { padding: clamp(48px, 8vw, 112px) 0 clamp(40px, 6vw, 88px); }
+  .hero-grid { display: grid; gap: var(--s-6); align-items: center; }
+  .hero h1 { margin-bottom: var(--s-2); }
+  .hero .lede { font-size: var(--web-h3); font-weight: 500; line-height: 1.3; margin-bottom: var(--s-3); max-width: 24ch; }
+  .hero .prose { margin-bottom: var(--s-4); }
+  .actions { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-bottom: var(--s-4); }
+  .platforms { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-2); font-size: var(--web-body-sm); color: var(--dove-gray); }
+  .platforms li + li::before { content: "·"; margin-right: var(--s-2); }
+
+  .tv { width: 100%; max-width: 560px; }
+  .tv-bezel { background: var(--thunder); border-radius: var(--radius-lg); padding: 12px; box-shadow: var(--shadow-lg); }
+  .tv-screen { aspect-ratio: 16 / 9; background: var(--ewtn-screen); border-radius: var(--radius-md); overflow: hidden; }
+  .tv-screen img { width: 100%; height: 100%; object-fit: cover; }
+  .tv-neck { width: 14%; height: 14px; background: var(--thunder); margin: 0 auto; }
+  .tv-base { width: 44%; height: 8px; background: var(--thunder); margin: 0 auto; border-radius: 0 0 var(--radius-sm) var(--radius-sm); }
+  .tv figcaption { margin-top: var(--s-2); font-size: var(--web-body-sm); color: var(--dove-gray); }
+
+  @media (min-width: 1024px) {
+    .hero-grid { grid-template-columns: 1.1fr 0.9fr; }
+    .tv { justify-self: end; }
+  }
+
+  /* The client */
+  .two-col { display: grid; gap: var(--s-5); align-items: start; }
+  @media (min-width: 768px) { .two-col { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1280px) { .two-col { gap: var(--s-8); } }
+
+  .card {
+    background: var(--wild-sand); border: 1px solid var(--mercury);
+    border-radius: var(--radius-md); padding: var(--s-3); box-shadow: var(--shadow-sm);
+  }
+  .card h3 { font-size: var(--web-h4); font-weight: 700; margin-bottom: var(--s-2); }
+  .facts { display: grid; gap: var(--s-2); }
+  .facts div { display: grid; gap: 2px; padding-bottom: var(--s-2); border-bottom: 1px solid var(--mercury); }
+  .facts div:last-child { border-bottom: 0; padding-bottom: 0; }
+  .facts dt { font-size: var(--web-body-sm); color: var(--dove-gray); }
+  .facts dd { margin: 0; font-weight: 500; }
+  .ships { margin-top: var(--s-4); }
+  .ships h3 { font-size: var(--web-h4); font-weight: 700; margin-bottom: var(--s-2); }
+  .ships ul { columns: 2; column-gap: var(--s-3); }
+  .ships li { break-inside: avoid; }
+
+  /* The bet: pipeline */
+  .pipe { display: grid; gap: var(--s-2); margin: var(--s-5) 0; align-items: center; }
+  .pipe-node { background: var(--on-dark-fill); border: 1px solid var(--on-dark-line); border-radius: var(--radius-md); padding: var(--s-2) var(--s-3); }
+  .pipe-node strong { display: block; font-size: var(--web-h4); font-weight: 700; }
+  .pipe-node span { display: block; font-size: var(--web-body-sm); color: var(--on-dark-muted); margin-top: 2px; }
+  .pipe-arrow { display: flex; justify-content: center; color: var(--zaelow); }
+  .pipe-arrow svg { width: 28px; height: 28px; transform: rotate(90deg); }
+  .pipe-out { list-style: none; padding: 0; display: grid; gap: var(--s-1-5); }
+  .pipe-out li {
+    display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: var(--s-1-5);
+    border: 1px solid var(--on-dark-line); border-radius: var(--radius-md); padding: var(--s-1-5) var(--s-2);
+  }
+  .pipe-out .artifact { font-weight: 700; }
+  .pipe-out svg { width: 16px; height: 16px; color: var(--zaelow); }
+  .pipe-out .store { font-size: var(--web-body-sm); }
+  .pipe-out .store b { font-weight: 500; display: block; }
+  .pipe-out .store span { color: var(--on-dark-muted); }
+
+  @media (min-width: 1024px) {
+    .pipe { grid-template-columns: auto 40px auto 40px 1fr; gap: var(--s-2); }
+    .pipe-arrow svg { transform: none; }
+  }
+  .bet-notes { display: grid; gap: var(--s-3); }
+  @media (min-width: 768px) { .bet-notes { grid-template-columns: 1fr 1fr; gap: var(--s-5); } }
+  .bet-notes h3 { font-size: var(--web-h4); font-weight: 700; margin-bottom: var(--s-1-5); }
+
+  /* Challenges: ranked list */
+  .rank { list-style: none; padding: 0; counter-reset: rank; display: grid; gap: var(--s-1-5); margin: var(--s-4) 0; }
+  .rank li { counter-increment: rank; }
+  .rank a {
+    display: grid; grid-template-columns: 40px 1fr; gap: var(--s-2); align-items: start;
+    padding: var(--s-2) var(--s-3); border: 1px solid var(--mercury); border-left: 4px solid var(--mercury);
+    border-radius: var(--radius-md); text-decoration: none; background: var(--white); transition: background 0.2s;
+  }
+  .rank a:hover { background: var(--wild-sand); }
+  .rank a::before { content: counter(rank); font-size: var(--web-h3); font-weight: 700; line-height: 1; }
+  .rank strong { display: block; font-weight: 700; }
+  .rank .why { color: var(--dove-gray); font-size: var(--web-body-sm); }
+  /* The costliest one is the only highlighted item: the section exists to say where the cost went. */
+  .rank .is-top a { border-left-color: var(--zaelow); background: var(--wild-sand); }
+  .rank .is-top .tag { display: block; font-size: var(--web-caption); font-weight: 500; margin-top: var(--s-0-5); }
+
+  /* Challenge detail articles */
+  .challenge { display: grid; gap: var(--s-4); padding: var(--s-6) 0; border-top: 1px solid var(--mercury); scroll-margin-top: 80px; }
+  .challenge:last-of-type { padding-bottom: 0; }
+  .challenge-num { font-size: var(--web-h1); font-weight: 700; line-height: 1; padding-bottom: var(--s-1-5); border-bottom: 4px solid var(--zaelow); display: inline-block; margin-bottom: var(--s-2); }
+  .challenge-head h3 { margin-bottom: var(--s-1-5); }
+  .challenge-body { display: grid; gap: var(--s-4); }
+  .challenge-body h4 { font-size: var(--web-h4); margin-bottom: var(--s-1-5); }
+  .pair { display: grid; gap: var(--s-4); }
+  @media (min-width: 768px) { .pair { grid-template-columns: 1fr 1fr; } }
+  .note { border-top: 1px solid var(--mercury); padding-top: var(--s-2); color: var(--dove-gray); font-size: var(--web-body-sm); }
+  @media (min-width: 1024px) {
+    .challenge { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: var(--s-8); }
+    .challenge-head { position: sticky; top: 96px; align-self: start; }
+  }
+
+  /* Tables */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--mercury); border-radius: var(--radius-md); }
+  table { width: 100%; border-collapse: collapse; font-size: var(--web-body-sm); text-align: left; }
+  caption { text-align: left; padding: var(--s-1-5) var(--s-2); font-weight: 500; color: var(--dove-gray); caption-side: bottom; font-size: var(--web-caption); }
+  th, td { padding: var(--s-1-5) var(--s-2); vertical-align: top; border-bottom: 1px solid var(--mercury); }
+  thead th { background: var(--wild-sand); font-weight: 700; }
+  tbody th { font-weight: 700; white-space: nowrap; }
+  tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
+  .platform-table { min-width: 640px; }
+
+  /* Alternatives table stacks on mobile; ARIA roles keep the table semantics. */
+  .alt-table td[data-label]::before { display: none; }
+  @media (max-width: 767px) {
+    .alt-table, .alt-table thead, .alt-table tbody, .alt-table tr, .alt-table th, .alt-table td { display: block; }
+    .alt-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .alt-table tr { padding: var(--s-2) 0; border-bottom: 1px solid var(--mercury); }
+    .alt-table tr:last-child { border-bottom: 0; }
+    .alt-table th, .alt-table td { border: 0; padding: var(--s-0-5) var(--s-2); white-space: normal; }
+    .alt-table tbody th { font-size: var(--web-body); padding-bottom: var(--s-1); }
+    .alt-table td[data-label]::before { content: attr(data-label); display: block; font-size: var(--web-caption); color: var(--dove-gray); font-weight: 500; }
+  }
+
+  /* Assessment */
+  .verdict { margin-top: var(--s-5); border-left: 4px solid var(--zaelow); padding: var(--s-0-5) 0 var(--s-0-5) var(--s-3); max-width: 70ch; }
+  .verdict h3 { font-size: var(--web-h4); font-weight: 700; margin-bottom: var(--s-1); }
+
+  /* Takeaways */
+  .takeaways { list-style: none; padding: 0; counter-reset: take; display: grid; gap: var(--s-4); margin: var(--s-5) 0; }
+  .takeaways li { counter-increment: take; display: grid; grid-template-columns: auto 1fr; gap: var(--s-3); align-items: start; }
+  .takeaways li::before { content: counter(take, decimal-leading-zero); font-size: var(--web-h3); font-weight: 700; line-height: 1.15; color: var(--zaelow); }
+  .takeaways p { font-size: var(--web-h4); line-height: 1.35; max-width: 34ch; }
+  .takeaways p b { font-weight: 700; }
+  @media (min-width: 1024px) {
+    .takeaways { grid-template-columns: repeat(3, 1fr); gap: var(--s-6); }
+    .takeaways li { grid-template-columns: 1fr; gap: var(--s-2); }
+    .takeaways li::before { border-top: 4px solid var(--zaelow); padding-top: var(--s-2); }
+  }
+  .questions { border-top: 1px solid var(--on-dark-line); padding-top: var(--s-4); display: flex; flex-wrap: wrap; gap: var(--s-3); align-items: center; justify-content: space-between; }
+  .questions h3 { font-size: var(--web-h3); }
+  .questions p { color: var(--on-dark-muted); max-width: 44ch; }
+
+  /* Footer */
+  .site-footer { background: var(--zaelow); color: var(--thunder); padding: var(--s-5) 0; }
+  .footer-row { display: flex; flex-wrap: wrap; gap: var(--s-3); justify-content: space-between; align-items: center; }
+  .footer-row p { max-width: 52ch; font-size: var(--web-body-sm); }
+  .footer-links { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-3); font-size: var(--web-body-sm); font-weight: 500; }
+  .footer-links a { display: inline-flex; align-items: center; gap: 6px; text-decoration: underline; text-underline-offset: 3px; }
+  .footer-links svg { width: 14px; height: 14px; }
+
+  /* Reveal on scroll */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .js .reveal { opacity: 0; }
+  .js .reveal.in { animation: fadeInUp 0.5s ease forwards; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .js .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="container">
+    <nav class="nav" aria-label="Sections">
+      <a class="nav-logo" href="#top" aria-label="Zaelot, back to top">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="-6 -6 280 92" fill="none" role="img" aria-label="Zaelot"><path d="M268 25.12V18H247.36V0H239.55V18H192.94C182.39 18 177.34 23 177.34 33.6V64.34C177.245 67.2521 177.788 70.1496 178.93 72.83H170.59C164.85 72.83 162.59 70.53 162.59 64.83V0.290009H154.79V64.35C154.683 67.3483 155.265 70.3313 156.49 73.07H111.1C105.37 73.07 103.1 70.77 103.1 65.07V51.79H142.78V33.61C142.78 23.06 137.78 18.01 127.18 18.01H110.88C105.65 18.01 101.77 19.26 99.19 21.8C96.61 19.26 92.74 18.01 87.5 18.01H71.2C60.64 18.01 55.59 23.01 55.59 33.61V37.4H63.39V32.92C63.39 27.19 65.69 24.92 71.39 24.92H87.22C92.96 24.92 95.22 27.21 95.22 32.92V33.26C95.22 33.38 95.22 33.49 95.22 33.61V44.88H71.2C60.64 44.88 55.59 49.88 55.59 60.48V64.35L55.7 66.06C55.781 68.4806 56.346 70.8606 57.36 73.06H14.13L52.13 18H4.4V24.89H38L0 80H87.49C92.73 80 96.6 78.75 99.18 76.21C101.76 78.75 105.64 80 110.87 80H210C220.56 80 225.61 74.95 225.61 64.4V33.61C225.705 30.698 225.162 27.8004 224.02 25.12H239.51V64.32C239.51 74.87 244.51 79.92 255.12 79.92H268V72.81H255.39C249.65 72.81 247.39 70.52 247.39 64.81V25.12H268ZM103.07 32.92C103.07 27.19 105.37 24.92 111.07 24.92H126.91C132.76 24.92 134.91 27.22 134.91 32.92V44.92H103.09V33.61C103.09 33.49 103.09 33.38 103.09 33.26L103.07 32.92ZM87.26 73.07H71.43C65.57 73.07 63.43 70.77 63.43 65.07V62.82V59.82C63.43 54.09 65.73 51.82 71.43 51.82H95.2701V64.41C95.2701 64.54 95.2701 65.1 95.2701 65.1C95.29 70.77 93 73.07 87.26 73.07ZM217.84 64.81C217.84 70.54 215.55 72.81 209.84 72.81H193.2C187.47 72.81 185.2 70.51 185.2 64.81V33.15C185.2 27.42 187.5 25.15 193.2 25.15H209.84C215.58 25.15 217.84 27.45 217.84 33.15V64.81Z" fill="#211E20"/></svg>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        Menu
+      </button>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#client">The client</a></li>
+        <li><a href="#bet">The bet</a></li>
+        <li><a href="#challenges">Challenges</a></li>
+        <li><a href="#assessment">Assessment</a></li>
+        <li><a href="#alternatives">Alternatives</a></li>
+        <li><a href="#takeaways">Takeaways</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- Hero -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="container hero-grid">
+      <div class="reveal">
+        <p class="eyebrow">Internal talk</p>
+        <h1 id="hero-title">EWTN+ for TV</h1>
+        <p class="lede">A streaming app for three platforms with a single codebase</p>
+        <div class="prose">
+          <p>How we built the EWTN+ TV app with React Native, what broke along the way, and how we fixed it. Written for the whole team: no React Native or TV experience assumed.</p>
+        </div>
+        <div class="actions">
+          <a class="btn btn-primary" href="#challenges">
+            The five challenges
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+          </a>
+          <a class="btn btn-secondary" href="#assessment">
+            Stack assessment
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+          </a>
+        </div>
+        <ul class="platforms" aria-label="Target platforms">
+          <li>Apple TV (tvOS)</li>
+          <li>Android TV / Google TV</li>
+          <li>Fire TV</li>
+        </ul>
+      </div>
+      <figure class="tv reveal">
+        <div class="tv-bezel">
+          <div class="tv-screen">
+            <img src="ewtn-plus-logo.png" width="1280" height="720" alt="EWTN+ splash screen: the letters EWTN and a plus sign in white inside a red ring, on a dark navy background">
+          </div>
+        </div>
+        <div class="tv-neck" aria-hidden="true"></div>
+        <div class="tv-base" aria-hidden="true"></div>
+        <figcaption>The same app ships to the Apple App Store, Google Play, and the Amazon Appstore from one tree.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 01 The client -->
+  <section id="client" class="surface" aria-labelledby="client-title">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow"><span class="num">01</span> The client</p>
+        <h2 id="client-title">EWTN: a global Catholic media network with a TV app to replace</h2>
+      </div>
+      <div class="two-col">
+        <div class="reveal">
+          <div class="prose">
+            <p>EWTN runs television, radio, news, and digital platforms. Founded in 1981 in Alabama, it broadcasts 24/7 in several languages to audiences around the world. An established brand with a large, global audience.</p>
+            <p>Their legacy TV app covered fewer use cases. Instead of extending it, they decided to build a new one from scratch, with feature parity across platforms and accessibility as a requirement.</p>
+            <p>Three stores means three review processes, three artifact formats, and three device families.</p>
+          </div>
+          <div class="ships">
+            <h3>What EWTN+ ships</h3>
+            <ul class="marks">
+              <li>Global live channels</li>
+              <li>On-demand catalog</li>
+              <li>The Bible</li>
+              <li>Profiles and My List</li>
+              <li>Program guide (EPG)</li>
+              <li>Search</li>
+              <li>English and Spanish</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card reveal">
+          <h3>At a glance</h3>
+          <dl class="facts">
+            <div><dt>Founded</dt><dd>1981, Alabama, USA</dd></div>
+            <div><dt>Reach</dt><dd>24/7 broadcast, several languages, worldwide</dd></div>
+            <div><dt>Previous app</dt><dd>Legacy TV app with fewer features, replaced rather than extended</dd></div>
+            <div><dt>Destinations</dt><dd>Apple App Store (tvOS), Google Play (Android TV / Google TV), Amazon Appstore (Fire TV)</dd></div>
+            <div><dt>Requirements</dt><dd>Parity across platforms, accessibility from day one</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 The bet -->
+  <section id="bet" class="dark" aria-labelledby="bet-title">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow"><span class="num">02</span> The bet</p>
+        <h2 id="bet-title">One codebase, three stores</h2>
+        <div class="prose">
+          <p class="muted">React Native on the <b>react-native-tvos</b> fork, plus Expo, in TypeScript. Every platform wants a different build format, different asset formats, and a different process. The same code produces all of them, and EAS runs the builds and submissions in the cloud.</p>
+        </div>
+      </div>
+
+      <div class="pipe reveal">
+        <div class="pipe-node">
+          <strong>One codebase</strong>
+          <span>React Native tvOS + Expo, TypeScript</span>
+        </div>
+        <div class="pipe-arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M13 5l7 7-7 7"/></svg>
+        </div>
+        <div class="pipe-node">
+          <strong>EAS Build</strong>
+          <span>Cloud builds and store submissions</span>
+        </div>
+        <div class="pipe-arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M13 5l7 7-7 7"/></svg>
+        </div>
+        <ul class="pipe-out">
+          <li>
+            <span class="artifact">.ipa</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16M13 5l7 7-7 7"/></svg>
+            <span class="store"><b>Apple App Store</b><span>tvOS, via TestFlight</span></span>
+          </li>
+          <li>
+            <span class="artifact">.aab</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16M13 5l7 7-7 7"/></svg>
+            <span class="store"><b>Google Play</b><span>Android TV, Google TV</span></span>
+          </li>
+          <li>
+            <span class="artifact">.aab / .apk</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16M13 5l7 7-7 7"/></svg>
+            <span class="store"><b>Amazon Appstore</b><span>Fire TV, Amazon variant</span></span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="bet-notes reveal">
+        <div>
+          <h3>Why React Native</h3>
+          <div class="prose">
+            <p class="muted">A single UI and a single team, prior React experience, and a fork that adds tvOS and Android TV support on top of React Native. The client chose the technology, expecting to reuse code with the mobile app and even the .com site; shared folders were structured with that in mind. The alternative, two or three native teams with three codebases, was ruled out by client decision.</p>
+          </div>
+        </div>
+        <div>
+          <h3>What changes per platform</h3>
+          <ul class="marks muted">
+            <li>Four Android package identifiers (production and staging, Play and Amazon) and one iOS bundle, all from the same tree, resolved through environment variables when the config is evaluated.</li>
+            <li>Google Play requires an App Bundle. Amazon accepts .apk and .aab: here staging ships .apk and production .aab.</li>
+            <li>The Amazon variant isn't a Gradle flavor. An environment variable changes the package identifier and adds the banner Fire TV's launcher requires.</li>
+            <li>Native divergences go through Expo config plugins, so there are no hand-maintained android/ and ios/ folders.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 Challenges -->
+  <section id="challenges" aria-labelledby="challenges-title">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow"><span class="num">03</span> Challenges</p>
+        <h2 id="challenges-title">Where the cost went</h2>
+        <div class="prose">
+          <p>Navigation, data, and state were solved as in any React Native app. The project's cost concentrated in what is specific to TV and to this stack. Five challenges, in order of cost.</p>
+        </div>
+      </div>
+
+      <ol class="rank reveal">
+        <li class="is-top">
+          <a href="#focus">
+            <span>
+              <strong>Focus</strong>
+              <span class="why">No pointer or touch on TV. The remote's D-pad moves focus, and each OS's native engine decides where it lands. They behave differently.</span>
+              <span class="tag">Highest cost of the project</span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a href="#platforms">
+            <span>
+              <strong>A single codebase for three platforms</strong>
+              <span class="why">tvOS and Android differ in event order and focus behavior. A fix for one often broke the other.</span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a href="#screen-readers">
+            <span>
+              <strong>Screen readers</strong>
+              <span class="why">VoiceOver and TalkBack double the test matrix and fail in opposite ways.</span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a href="#docs">
+            <span>
+              <strong>Lack of documentation</strong>
+              <span class="why">Far less material on TV apps than on mobile or web, on top of a fork that is little known and thinly maintained.</span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a href="#devices">
+            <span>
+              <strong>Emulators vs physical devices</strong>
+              <span class="why">Focus, accessibility, and performance behave differently on real hardware.</span>
+            </span>
+          </a>
+        </li>
+      </ol>
+
+      <div class="prose reveal">
+        <p>These challenges exist in any TV app. One codebase made them harder: solving a problem on one platform could open a new one on another.</p>
+      </div>
+
+      <!-- 1 Focus -->
+      <article class="challenge reveal" id="focus" aria-labelledby="focus-title">
+        <div class="challenge-head">
+          <p class="challenge-num" aria-hidden="true">1</p>
+          <h3 id="focus-title">Focus</h3>
+          <div class="prose">
+            <p>On TV there is no pointer or touch: focus moves with the remote's D-pad. Where it lands is decided by each OS's native engine, UIKit on tvOS and FocusFinder on Android, based on the layout's geometry.</p>
+            <p class="muted small">Mental model: on web or mobile the user points. On TV the system computes the most reasonable neighbor in the pressed direction.</p>
+          </div>
+        </div>
+        <div class="challenge-body">
+          <div>
+            <h4>The decision</h4>
+            <div class="prose">
+              <p>Trust the native engine, supported by TVFocusGuideView (a react-native-tvos API) to bridge and contain regions. Complex designs, a hero with overlays, a collapsible side menu, grids inside rows, are exactly where geometry gets ambiguous.</p>
+            </div>
+          </div>
+          <div class="pair">
+            <div>
+              <h4>Recurring symptoms</h4>
+              <ul class="marks plain">
+                <li>Focus escaping to the side menu during transitions</li>
+                <li>Focus lost after asynchronous loads</li>
+                <li>Initial focus on the wrong element</li>
+                <li>Screens with no focusable element</li>
+                <li>Overlapping elements</li>
+              </ul>
+            </div>
+            <div>
+              <h4>What we did, least invasive tool first</h4>
+              <ul class="marks">
+                <li>A focusable placeholder during loading states</li>
+                <li>Imperative focus with retries</li>
+                <li>Locking the side menu during navigation</li>
+              </ul>
+            </div>
+          </div>
+          <p class="note">The side menu was the big focus magnet: any instant without a focusable element on screen ended with the menu open. Some react-native-tvos APIs were poorly documented and only worked on one of the platforms.</p>
+        </div>
+      </article>
+
+      <!-- 2 Platforms -->
+      <article class="challenge reveal" id="platforms" aria-labelledby="platforms-title">
+        <div class="challenge-head">
+          <p class="challenge-num" aria-hidden="true">2</p>
+          <h3 id="platforms-title">A single codebase for three platforms</h3>
+          <div class="prose">
+            <p>The react-native-tvos APIs were supposed to unify focus handling across platforms. Some were poorly documented or only worked on one of them, and the platforms handle focus and its events differently.</p>
+          </div>
+        </div>
+        <div class="challenge-body">
+          <div class="table-wrap">
+            <table class="platform-table">
+              <caption>How each platform handles focus and reads the screen</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Aspect</th>
+                  <th scope="col">tvOS (Apple TV)</th>
+                  <th scope="col">Android TV / Google TV</th>
+                  <th scope="col">Fire TV</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Focus engine</th>
+                  <td>Infers targets by position and alignment. Supports diagonals and swipe.</td>
+                  <td>Looks for the closest element in the pressed direction (up, down, left, right). No diagonals.</td>
+                  <td>Same as Android</td>
+                </tr>
+                <tr>
+                  <th scope="row">Event order</th>
+                  <td>The expected one: blur of the previous element, then focus of the new one.</td>
+                  <td>Focus of the new element <b>before</b> blur of the previous one.</td>
+                  <td>Same as Android</td>
+                </tr>
+                <tr>
+                  <th scope="row">Screen reader</th>
+                  <td>VoiceOver</td>
+                  <td>TalkBack</td>
+                  <td>VoiceView</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="prose">
+            <p>Proximity vs alignment: tvOS weights edge alignment heavily, Android looks for the closest neighbor in the direction. The same layout can be correct on one and ambiguous on the other.</p>
+          </div>
+          <p class="note">Consequence of one codebase: fixing one platform was prone to breaking another. The UI carries many platform-conditional branches to apply different solutions.</p>
+        </div>
+      </article>
+
+      <!-- 3 Screen readers -->
+      <article class="challenge reveal" id="screen-readers" aria-labelledby="sr-title">
+        <div class="challenge-head">
+          <p class="challenge-num" aria-hidden="true">3</p>
+          <h3 id="sr-title">Screen readers</h3>
+          <div class="prose">
+            <p>On TV, accessibility focus can differ from interaction focus: the reader announces whatever holds accessibility focus. Every screen is validated on three platforms, with the reader on and off.</p>
+          </div>
+        </div>
+        <div class="challenge-body">
+          <div class="pair">
+            <div>
+              <h4>Android + TalkBack</h4>
+              <div class="prose">
+                <p>TVFocusGuideView becomes an accessibility node and captures focus. It has to be replaced with a flat container, and the focus traps it provided have to be rewired by hand. To keep TalkBack from skipping virtualized items they stay mounted, at a performance cost.</p>
+              </div>
+            </div>
+            <div>
+              <h4>tvOS + VoiceOver</h4>
+              <div class="prose">
+                <p>Doesn't announce when focus is moved programmatically. Explicit announcements are required, with delays calibrated per screen, and the reading gets cut off if it coincides with UI updates. The pacing lever is the punctuation in the labels.</p>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h4>What we did</h4>
+            <ul class="marks">
+              <li>Reader state lives in the focus context</li>
+              <li>Accessible container and Android-specific focus guards</li>
+              <li>PR policy: four evidence videos per change, Apple and Android with the reader on and off</li>
+            </ul>
+          </div>
+          <p class="note">The two platforms fail in opposite ways. Android needs the component that makes focus work removed; tvOS needs the app to speak when the system stays silent. The four-videos-per-PR policy was the most effective measure against regressions.</p>
+        </div>
+      </article>
+
+      <!-- 4 Documentation -->
+      <article class="challenge reveal" id="docs" aria-labelledby="docs-title">
+        <div class="challenge-head">
+          <p class="challenge-num" aria-hidden="true">4</p>
+          <h3 id="docs-title">Lack of documentation</h3>
+          <div class="prose">
+            <p>react-native-tvos is a fork maintained by few people, with scarce documentation. TV support in Expo is experimental: it depends on an environment variable and a config plugin. With this stack, the library's source code is the documentation.</p>
+          </div>
+        </div>
+        <div class="challenge-body">
+          <div>
+            <h4>Gaps covered with our own engineering</h4>
+            <ul class="marks plain">
+              <li>react-native-video doesn't report bitrate changes on tvOS or in audio-only streams. We wrote native modules in Swift and Kotlin and inject them with config plugins.</li>
+              <li>Local storage on tvOS can be purged by the system. Session tokens live with that risk.</li>
+              <li>Expo dev builds need the mobile launcher intent, which a TV app shouldn't declare. The plugin removes it only in release.</li>
+            </ul>
+          </div>
+          <div>
+            <h4>Method</h4>
+            <div class="prose">
+              <p>Read the libraries' source, isolate each divergence in a defensive config plugin (seven today), and document in the repo what upstream doesn't: a README of about 600 lines plus per-topic guides. Config plugins are regenerated on every build; if the file they expect has changed, they fail with a warning instead of an error.</p>
+            </div>
+          </div>
+          <p class="note">Hidden cost of one codebase: we still had to write Swift and Kotlin. Less than in pure native, but not zero.</p>
+        </div>
+      </article>
+
+      <!-- 5 Devices -->
+      <article class="challenge reveal" id="devices" aria-labelledby="devices-title">
+        <div class="challenge-head">
+          <p class="challenge-num" aria-hidden="true">5</p>
+          <h3 id="devices-title">Emulators vs physical devices</h3>
+          <div class="prose">
+            <p>Emulators are for developing, not for validating. Everything involving focus, screen readers, or performance gets decided on hardware.</p>
+          </div>
+        </div>
+        <div class="challenge-body">
+          <div>
+            <h4>What only showed up on hardware</h4>
+            <ul class="marks plain">
+              <li>Apple TV HD (1080p) showed a green vertical line and image rendering errors the simulator never reproduced. A per-model bug, invisible on Apple TV 4K.</li>
+              <li>Apple TV's VoiceOver can only be tested on a physical device.</li>
+              <li>Fire TV has no official emulator. Testing runs over adb against physical sticks and in a shared remote lab, and VoiceView is hardware only.</li>
+              <li>Between the Android TV emulator and a real Google TV, focus timing and the system keyboard behave differently.</li>
+              <li>D-pad lag and navigation delays appear only on real devices. Fire TV sticks are the most limited hardware and the one that exposes performance problems best.</li>
+            </ul>
+          </div>
+          <div>
+            <h4>Practice adopted</h4>
+            <ul class="marks">
+              <li>At least one physical device per platform from the start</li>
+              <li>Video evidence per PR</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- 04 Assessment -->
+  <section id="assessment" class="surface" aria-labelledby="assessment-title">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow"><span class="num">04</span> Assessment</p>
+        <h2 id="assessment-title">React Native tvOS + Expo: what worked and what it cost</h2>
+      </div>
+      <div class="two-col">
+        <div class="card reveal">
+          <h3>What worked</h3>
+          <ul class="marks">
+            <li>One codebase and a single UI for three stores.</li>
+            <li>Expo Router for navigation and EAS for builds and submissions: no local Xcode or Gradle.</li>
+            <li>Config plugins express native divergences without maintaining android/ and ios/ folders.</li>
+            <li>A usable React Native ecosystem (player, state, validation) and fast iteration with hot reload.</li>
+          </ul>
+        </div>
+        <div class="card reveal">
+          <h3>What it cost</h3>
+          <ul class="marks">
+            <li>The fork lags behind React Native and Expo. TV support is fragile.</li>
+            <li>Scarce documentation: the libraries' source code is the reference.</li>
+            <li>The native focus engine has no JS abstraction, which forces platform conditionals throughout the UI.</li>
+            <li>End-to-end testing is complex, with no mature tooling for TV.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="verdict reveal">
+        <h3>Still positive for this client</h3>
+        <div class="prose">
+          <p>Three stores with a small team would not have been viable in pure native. The cost concentrated in focus and accessibility; the rest of the app (navigation, data, state) was as productive as on mobile. Freezing dependencies was a deliberate call to stabilize. The upgrade debt exists and has to be planned for.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 Alternatives -->
+  <section id="alternatives" aria-labelledby="alternatives-title">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow"><span class="num">05</span> Alternatives</p>
+        <h2 id="alternatives-title">What else could have been on the table</h2>
+        <div class="prose">
+          <p>The decisive constraint is tvOS: it rules out web, Flutter, and Kotlin Multiplatform for the App Store. Within the same stack, a JS spatial-navigation library is the most interesting option. It removes the differences between focus engines, but shifts accessibility onto the app. With designs full of overlapping elements, it deserves a proof of concept before deciding.</p>
+        </div>
+      </div>
+
+      <div class="table-wrap reveal">
+        <table class="alt-table" role="table">
+          <caption>Alternatives to React Native tvOS + Expo, with their trade-offs</caption>
+          <thead role="rowgroup">
+            <tr role="row">
+              <th role="columnheader" scope="col">Alternative</th>
+              <th role="columnheader" scope="col">Pros</th>
+              <th role="columnheader" scope="col">Cons</th>
+            </tr>
+          </thead>
+          <tbody role="rowgroup">
+            <tr role="row">
+              <th role="rowheader" scope="row">Pure native (SwiftUI/UIKit + Compose for TV / Leanback)</th>
+              <td role="cell" data-label="Pros">Better focus and accessibility. First-party APIs.</td>
+              <td role="cell" data-label="Cons">Two codebases and two teams. Costly feature parity.</td>
+            </tr>
+            <tr role="row">
+              <th role="rowheader" scope="row">Flutter</th>
+              <td role="cell" data-label="Pros">One codebase. Good rendering performance.</td>
+              <td role="cell" data-label="Cons">No official tvOS target. TV focus handled manually.</td>
+            </tr>
+            <tr role="row">
+              <th role="rowheader" scope="row">Kotlin / Compose Multiplatform</th>
+              <td role="cell" data-label="Pros">Shares logic with Android.</td>
+              <td role="cell" data-label="Cons">No tvOS.</td>
+            </tr>
+            <tr role="row">
+              <th role="rowheader" scope="row">Web for TV (Lightning.js, Solid, Vue)</th>
+              <td role="cell" data-label="Pros">One codebase for Smart TV, Fire TV web, and consoles.</td>
+              <td role="cell" data-label="Cons">tvOS does not expose a WebView for App Store apps.</td>
+            </tr>
+            <tr role="row">
+              <th role="rowheader" scope="row">React Native + react-tv-space-navigation</th>
+              <td role="cell" data-label="Pros">Focus is computed in JS and behaves the same on every platform.</td>
+              <td role="cell" data-label="Cons">Gives up native focus and part of the system's accessibility.</td>
+            </tr>
+            <tr role="row">
+              <th role="rowheader" scope="row">Other decisions within React Native</th>
+              <td role="cell" data-label="Pros">FlashList instead of FlatList. Bare React Native tvOS instead of Expo.</td>
+              <td role="cell" data-label="Cons">More control in exchange for more maintenance.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="prose reveal" style="margin-top: var(--s-4);">
+        <p class="muted">Reference used for an internal self-audit: Callstack and Amazon's guide to TV development with React Native, 2026 edition. It came out a couple of months after we shipped to production. Many of the problems it lists are the ones we ran into, and solved.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 Takeaways -->
+  <section id="takeaways" class="dark" aria-labelledby="takeaways-title">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow"><span class="num">06</span> Takeaways</p>
+        <h2 id="takeaways-title">Three things to take home</h2>
+      </div>
+      <ol class="takeaways reveal">
+        <li><p><b>One app, three stores, a small team.</b> The bet works, with the cost concentrated in focus and accessibility.</p></li>
+        <li><p><b>The native focus engine and screen readers are the real TV problem.</b> The rest is conventional React Native development.</p></li>
+        <li><p><b>What upstream doesn't document, the team documents.</b> In code and in guides.</p></li>
+      </ol>
+      <div class="questions reveal">
+        <h3>Questions</h3>
+        <p>Open at the end of the session. Bring the ones about focus first, that's where the stories are.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-row">
+    <p>EWTN+ for TV is an internal engineering talk by the Zaelot team, on building a TV streaming app for Apple TV, Android TV, and Fire TV from one codebase.</p>
+    <ul class="footer-links" aria-label="Footer">
+      <li>
+        <a href="https://zaelot.com" target="_blank" rel="noopener">
+          zaelot.com
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17L17 7M9 7h8v8"/></svg>
+        </a>
+      </li>
+      <li>
+        <a href="#top">
+          Back to top
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+        </a>
+      </li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // Mobile nav toggle
+  var toggle = document.querySelector('.nav-toggle');
+  var links = document.getElementById('nav-links');
+  function closeNav() {
+    links.classList.remove('is-open');
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+  toggle.addEventListener('click', function () {
+    var open = links.classList.toggle('is-open');
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  links.addEventListener('click', function (e) {
+    if (e.target.tagName === 'A') closeNav();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && links.classList.contains('is-open')) { closeNav(); toggle.focus(); }
+  });
+
+  // Scroll spy: aria-current on the section in view
+  var navAnchors = Array.prototype.slice.call(links.querySelectorAll('a[href^="#"]'));
+  var sections = navAnchors.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+  if ('IntersectionObserver' in window && sections.length) {
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        navAnchors.forEach(function (a) {
+          if (a.getAttribute('href') === '#' + entry.target.id) a.setAttribute('aria-current', 'location');
+          else a.removeAttribute('aria-current');
+        });
+      });
+    }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
+    sections.forEach(function (s) { spy.observe(s); });
+  }
+
+  // Reveal on scroll
+  var reveals = document.querySelectorAll('.reveal');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce || !('IntersectionObserver' in window)) {
+    reveals.forEach(function (el) { el.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) { entry.target.classList.add('in'); io.unobserve(entry.target); }
+    });
+  }, { rootMargin: '0px 0px -10% 0px', threshold: 0.05 });
+  reveals.forEach(function (el) { io.observe(el); });
+})();
+</script>
+</body>
+</html>
