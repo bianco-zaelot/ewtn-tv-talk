@@ -82,6 +82,7 @@ flowchart LR
 - On TV there is no mouse or touch screen: **focus** moves with the remote control's D-pad.
 - What decides where focus goes is each OS's **native engine** (UIKit on tvOS, FocusFinder on Android), based on the layout's geometry. We decided to trust the native engine, supported by `TVFocusGuideView` (react-native-tvos API) to bridge and contain regions.
 - Recurring symptoms: focus escaping to the side menu during transitions; focus lost after asynchronous loads; initial focus on the wrong element; screens with no focusable element; overlapping elements.
+  ![Focus example](./images/focus-example.jpg)
 
 > **Speaker notes** ⏱ 1.5 min
 >
@@ -96,11 +97,11 @@ flowchart LR
 - The react-native-tvos APIs that were meant to simplify and unify focus handling across the different platforms were poorly documented or only worked on one of the platforms.
 - The different platforms handle focus and related events differently:
 
-| Aspect        | tvOS (Apple TV)                                                          | Android TV / Google TV                                                                                       | Fire TV         |
-| ------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ | --------------- |
-| Focus engine  | Infers targets by position and alignment; supports diagonals and swipe   | The system looks for the closest element in the pressed direction (Up, Down, Left, Right), with no diagonals | Same as Android |
+| Aspect        | tvOS (Apple TV)                                                           | Android TV / Google TV                                                                                       | Fire TV         |
+| ------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | --------------- |
+| Focus engine  | Infers targets by position and alignment; supports diagonals and swipe    | The system looks for the closest element in the pressed direction (Up, Down, Left, Right), with no diagonals | Same as Android |
 | Event order   | The expected one: blur of the previous element, then focus of the new one | Focus of the new element **before** blur of the previous one                                                 | Same as Android |
-| Screen reader | VoiceOver                                                                | TalkBack                                                                                                     | VoiceView       |
+| Screen reader | VoiceOver                                                                 | TalkBack                                                                                                     | VoiceView       |
 
 - Consequence of a single codebase: fixing one platform was prone to breaking another. Many platform-conditional branches to apply different solutions.
 
@@ -189,11 +190,11 @@ flowchart LR
 
 ## 10. Alternatives that could have been evaluated
 
-| Alternative                                                  | Pros                                                            | Cons                                                                    |
-| ------------------------------------------------------------ | --------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| Pure native (SwiftUI/UIKit + Compose for TV / Leanback)      | Better focus and accessibility; first-party APIs                | Two codebases and two teams; costly feature parity                      |
-| React Native + `react-tv-space-navigation`                   | Focus is computed in JS and behaves the same on every platform  | Gives up native focus and part of the system's accessibility            |
-| Other decisions within RN                                    | FlashList instead of FlatList; bare RN tvOS instead of Expo     | More control in exchange for more maintenance                           |
+| Alternative                                             | Pros                                                           | Cons                                                         |
+| ------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------ |
+| Pure native (SwiftUI/UIKit + Compose for TV / Leanback) | Better focus and accessibility; first-party APIs               | Two codebases and two teams; costly feature parity           |
+| React Native + `react-tv-space-navigation`              | Focus is computed in JS and behaves the same on every platform | Gives up native focus and part of the system's accessibility |
+| Other decisions within RN                               | FlashList instead of FlatList; bare RN tvOS instead of Expo    | More control in exchange for more maintenance                |
 
 > **Speaker notes** ⏱ 1.5 min
 >
