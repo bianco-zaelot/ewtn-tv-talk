@@ -82,7 +82,7 @@ flowchart LR
 - On TV there is no mouse or touch screen: **focus** moves with the remote control's D-pad.
 - What decides where focus goes is each OS's **native engine** (UIKit on tvOS, FocusFinder on Android), based on the layout's geometry. We decided to trust the native engine, supported by `TVFocusGuideView` (react-native-tvos API) to bridge and contain regions.
 - Recurring symptoms: focus escaping to the side menu during transitions; focus lost after asynchronous loads; initial focus on the wrong element; screens with no focusable element; overlapping elements.
-  ![Focus example](./images/focus-example.jpg)
+  ![Focus example](./images/focus-example.jpeg)
 
 > **Speaker notes** ⏱ 1.5 min
 >

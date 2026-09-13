@@ -82,7 +82,7 @@ flowchart LR
 - En TV no hay mouse ni pantalla tactil: el **foco** se mueve con el D-pad del control remoto.
 - Quién decide a dónde va el foco es el **motor nativo** de cada OS (UIKit en tvOS, FocusFinder en Android) a partir de la geometría del layout. Se decidio confiar en el motor nativo apoyado en `TVFocusGuideView` (API de react-native-tvos) para puentear y contener regiones.
 - Síntomas recurrentes: foco que escapa al menú lateral durante transiciones; foco perdido tras cargas asíncronas; foco inicial en el elemento equivocado; pantallas sin ningún elemento focuseable; elementos superpuestos.
-  ![Focus example](./images/focus-example.jpg)
+  ![Focus example](./images/focus-example.jpeg)
 
 > **Notas del orador** ⏱ 1,5 min
 >
