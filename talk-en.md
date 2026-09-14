@@ -15,8 +15,7 @@ A streaming app for three platforms with a single codebase: Apple App Store (tvO
 > **Speaker notes** ⏱ 0.5 min
 >
 > - Introduce yourself and introduce the team that worked on the project.
-> - Summarize the talk and its goal: what we learned and what challenges we faced building a TV app with React Native for Apple TV, Android TV and Fire TV in under 6 months (07/29/2025 - 01/14/2026).
-> - Three stores means three review processes, three different asset formats, three build formats and three device families that behave completely differently.
+> - Summarize the talk and its goal: what we learned and what challenges we faced building a TV app with React Native for Apple TV, Android TV and Fire TV in under 6 months (07/2025 - 01/2026).
 
 ---
 
@@ -24,7 +23,7 @@ A streaming app for three platforms with a single codebase: Apple App Store (tvO
 
 - Global Catholic media network: television, radio, news and digital platforms.
 - Had a legacy TV app with fewer features. Decided to build a new one from scratch.
-- Product: EWTN+ global live channels, broadcasting 24/7 in English and Spanish to audiences around the world, on-demand catalog and the Bible. Profiles, program guide (EPG), search.
+- Product: EWTN+ global live channels, broadcasting 24/7 in English and Spanish to audiences around the world (US only in the first stage, then world-wide), on-demand catalog and the Bible. Profiles, program guide (EPG), search.
 
 > **Speaker notes** ⏱ 1 min
 >
@@ -110,6 +109,7 @@ flowchart LR
 > - Proximity vs alignment: tvOS heavily weights edge alignment; Android looks for the closest neighbor in the direction. The same layout can be correct on one and ambiguous on the other.
 > - Conditional branches for each platform.
 > - Different screen reader behaviors.
+> - Three stores means three review processes, three different asset formats, three build formats and three device families that behave completely differently.
 
 ---
 

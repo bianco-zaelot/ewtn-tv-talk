@@ -15,8 +15,7 @@ App de streaming para tres plataformas con un solo codebase: Apple App Store (tv
 > **Notas del orador** ⏱ 0,5 min
 >
 > - Presentarse y presentar al equipo que trabajo en el proyecto
-> - Resumir la charla y el objetivo de la charla: qué aprendimos y qué desafíos tuvimos construyendo una app de TV con React Native para Apple TV, Android TV y Fire TV en menos de 6 meses (29/07/2025 - 14/01/2026)
-> - Tres stores implica tres procesos de revisión, tres formatos distintos de assets, tres formatos de buildeo y tres familias de dispositivos que se comportan totalmente diferente.
+> - Resumir la charla y el objetivo de la charla: qué aprendimos y qué desafíos tuvimos construyendo una app de TV con React Native para Apple TV, Android TV y Fire TV en menos de 6 meses (07/2025 - 01/2026)
 
 ---
 
@@ -24,7 +23,7 @@ App de streaming para tres plataformas con un solo codebase: Apple App Store (tv
 
 - Red católica global de medios: televisión, radio, noticias y plataformas digitales.
 - Tenía una app de TV legacy con menos funcionalidades. Decidió construir una nueva desde cero.
-- Producto: EWTN+ señales en vivo globales, emite 24/7 en inglés y español a audiencias de todo el mundo, catálogo on demand y la Biblia. Perfiles, guía de programación (EPG), búsqueda.
+- Producto: EWTN+ señales en vivo globales, emite 24/7 en inglés y español a audiencias de todo el mundo (US solo en primera instancia, despues para mas paises), catálogo on demand y la Biblia. Perfiles, guía de programación (EPG), búsqueda.
 
 > **Notas del orador** ⏱ 1 min
 >
@@ -110,6 +109,7 @@ flowchart LR
 > - Proximidad vs alineación: tvOS pondera mucho la alineación de bordes; Android busca el vecino más cercano en la dirección. Un mismo layout puede ser correcto en uno y ambiguo en el otro.
 > - Ramas condicionales para cada plataforma.
 > - Distintos comportamientos de los lectores de pantalla.
+> - Tres stores implica tres procesos de revisión, tres formatos distintos de assets, tres formatos de buildeo y tres familias de dispositivos que se comportan totalmente diferente.
 
 ---
 
