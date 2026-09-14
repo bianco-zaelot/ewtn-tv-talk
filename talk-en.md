@@ -12,7 +12,7 @@
 **EWTN+ for TV**
 A streaming app for three platforms with a single codebase: Apple App Store (tvOS), Google Play (Android TV / Google TV) and Amazon Appstore (Fire TV)
 
-> **Speaker notes** ⏱ 0.5 min
+> **Speaker notes** ⏱ 1 min 10s
 >
 > - Introduce yourself and introduce the team that worked on the project.
 > - Summarize the talk and its goal: what we learned and what challenges we faced building a TV app with React Native for Apple TV, Android TV and Fire TV in under 6 months (07/2025 - 01/2026).
@@ -25,7 +25,7 @@ A streaming app for three platforms with a single codebase: Apple App Store (tvO
 - Had a legacy TV app with fewer features. Decided to build a new one from scratch.
 - Product: EWTN+ global live channels, broadcasting 24/7 in English and Spanish to audiences around the world (US only in the first stage, then world-wide), on-demand catalog and the Bible. Profiles, program guide (EPG), search.
 
-> **Speaker notes** ⏱ 1 min
+> **Speaker notes** ⏱ 1 min 40s
 >
 > - Client context: large organization, with a global audience.
 > - The previous app covered fewer use cases. The goal was a new app, with parity across platforms and accessibility as a requirement. The idea was to replace the app they already had in the store and ship it as if it were an update; the problem is that they told us this almost at the moment of going to production.
@@ -51,7 +51,7 @@ flowchart LR
   AMZ --> Amazon[Amazon Appstore<br/>Fire TV]
 ```
 
-> **Speaker notes** ⏱ 1.5 min
+> **Speaker notes** ⏱ 2 min 10s
 >
 > - `react-native-tvos` is a fork of React Native that adds tvOS and Android TV support. Some of its APIs are experimental and it does not support accessibility 100%, so there were things we had to solve with plugins or custom solutions that the fork itself does not provide. Whatever changes per platform at the native level is handled with Expo config plugins [Find examples of this].
 > - Why React Native: the client proposed this technology for several reasons: a single UI, a single team with prior React experience (avoiding one team per native app), and the idea of reusing code (everything was structured with an architecture designed for this purpose, in a monorepo with a lot of logic in shared folders) for the mobile app, since they expected it to be very similar, and even to share with the .com site as well.
@@ -70,7 +70,7 @@ flowchart LR
   5. **Emulators vs physical devices.** Focus, accessibility and performance behave differently on real hardware and emulators.
 - These challenges exist in any TV app; in this case, having a single codebase made them even harder to solve, because solving a problem for one platform could often cause another problem on a different one.
 
-> **Speaker notes** ⏱ 1 min
+> **Speaker notes** ⏱ 2 min
 >
 > - Present the challenges in general without going deep: focus and accessibility are TV challenges that cut across every screen, and in this case every platform.
 
@@ -83,7 +83,7 @@ flowchart LR
 - Recurring symptoms: focus escaping to the side menu during transitions; focus lost after asynchronous loads; initial focus on the wrong element; screens with no focusable element; overlapping elements.
   ![Focus example](./images/focus-example.jpeg)
 
-> **Speaker notes** ⏱ 1.5 min
+> **Speaker notes** ⏱ 3 min
 >
 > - Mental model: on web or mobile the user points; on TV the system computes the "most reasonable neighbor" in the pressed direction.
 > - Complex designs (hero with overlays, collapsible side menu, grids inside rows) are cases where geometry is ambiguous, which creates certain focus problems. For example, the side menu was the big focus magnet: any instant without a focusable element on screen ended with the menu open.
@@ -104,7 +104,7 @@ flowchart LR
 
 - Consequence of a single codebase: fixing one platform was prone to breaking another. Many platform-conditional branches to apply different solutions.
 
-> **Speaker notes** ⏱ 1.5 min
+> **Speaker notes** ⏱ 2 min
 >
 > - Proximity vs alignment: tvOS heavily weights edge alignment; Android looks for the closest neighbor in the direction. The same layout can be correct on one and ambiguous on the other.
 > - Conditional branches for each platform.
@@ -121,8 +121,9 @@ flowchart LR
 - tvOS + VoiceOver: does not announce when focus is moved programmatically; explicit announcements are required, with delays calibrated per screen, and the reading gets cut off if it coincides with UI updates.
 - Virtualization vs reader: to keep TalkBack from skipping items they have to stay mounted, at a performance cost.
 
-> **Speaker notes** ⏱ 1.5 min
+> **Speaker notes** ⏱ 2 min 40s
 >
+> - Since the client is a NON PROFIT organization they needed to go further into accessibility.
 > - With the screen reader enabled, focus behavior changes. For example, on Android the screen reader engine hides button capture and stops us from detecting which button is pressed on the remote, which forced us to change strategy to other things like focus guards or nextFocus.
 > - Screen reader focus on Android can land on text, but on Apple it cannot, so we had to do workarounds replacing them with pressables so that focus could land on the text.
 > - Accessibility doubled the test matrix: each screen is validated on three platforms with and without the reader.
@@ -131,8 +132,6 @@ flowchart LR
 
 ---
 
-<!-- one slide for both challenges, which are shorter -->
-
 ## 8a. Lack of documentation
 
 - `react-native-tvos` is a fork maintained by few people and with scarce documentation; TV support in Expo is experimental and depends on an environment variable and a config plugin.
@@ -140,7 +139,7 @@ flowchart LR
   - `react-native-video` does not report bitrate changes on tvOS or in audio-only streams → custom native modules in Swift and Kotlin, injected with config plugins.
   - Expo dev builds need the mobile launcher intent, which a TV app should not declare → the plugin removes it only in release.
 
-> **Speaker notes** ⏱ 1 min
+> **Speaker notes** ⏱ 2m 20s
 >
 > - With this stack you have to assume the library's source code is the documentation.
 > - Solution: divergences between applications had to be isolated with defensive config plugins (there are seven today). Config plugins allow injecting native code without maintaining native folders: they are regenerated on every build and, if the expected file changed, they fail with a warning rather than an error.
@@ -153,7 +152,7 @@ flowchart LR
 - Between the Android TV emulator and a real Google TV, focus timing and the system keyboard's behavior change.
 - Performance problems (such as D-pad lag or delays when navigating) only show up on real hardware.
 
-> **Speaker notes** ⏱ 1 min
+> **Speaker notes** ⏱ 3 min 30s
 >
 > - Emulators are for developing, not for validating: everything involving focus, screen reader or performance is decided on hardware.
 > - The Apple TV HD case is a per-device-model bug, invisible in the simulator and on Apple TV 4K.
@@ -180,11 +179,7 @@ flowchart LR
 - The native focus engine forces platform conditionals throughout the UI.
 - Complex E2E testing.
 
-> **Speaker notes** ⏱ 1.5 min
->
-> - The assessment is still positive: today the app is in production, and three stores with a small team would not have been viable in pure native.
-> - The cost is concentrated in focus and accessibility; the rest of the app (navigation, data, state) had no major issues.
-> - Freezing dependencies was a deliberate decision to stabilize; every dependency update broke components and focus. It has to be planned for, but first a solid E2E base has to be established.
+> **Speaker notes** ⏱ 1 min 20s
 
 ---
 
@@ -200,7 +195,6 @@ flowchart LR
 >
 > - The decisive constraint is tvOS: it rules out other existing options such as Web for TV (Lightning.js, Solid, Vue) and Flutter.
 > - The most interesting alternative within the same stack is a JS spatial navigation library: it removes the differences between focus engines, but shifts accessibility onto the app. With complex designs like the ones we had, with overlapping elements, that option deserves a large proof of concept before deciding.
-> - A few months after launching the app to production, a complete guide on TV app development by Callstack and Amazon came out, and we were able to verify that many of the problems that document mentions are exactly the same ones we ran into and, ultimately, managed to solve.
 
 ---
 
@@ -213,9 +207,13 @@ flowchart LR
 
 **Questions**
 
-> **Speaker notes** ⏱ 0.5 min
+> **Speaker notes** ⏱ 1 min 30s
 >
 > - Close the talk and open for questions.
+> - The assessment is still positive: today the app is in production, and three stores with a small team would not have been viable in pure native.
+> - The cost is concentrated in focus and accessibility; the rest of the app (navigation, data, state) had no major issues.
+> - A few months after launching the app to production, a complete guide on TV app development by Callstack and Amazon came out, and we were able to verify that many of the problems that document mentions are exactly the same ones we ran into and, ultimately, managed to solve.
+> - Freezing dependencies was a deliberate decision to stabilize; every dependency update broke components and focus. It has to be planned for, but first a solid E2E base has to be established.
 > - [Connect with the session that comes next, explaining how Suitest helps mitigate all these challenges we faced]
 
 ---
