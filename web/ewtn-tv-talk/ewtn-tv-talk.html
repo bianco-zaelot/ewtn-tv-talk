@@ -605,7 +605,7 @@
           <p class="challenge-num" aria-hidden="true">2</p>
           <h3 id="sr-title">Screen readers</h3>
           <div class="prose">
-            <p>The client requires a strong emphasis on accessibility.</p>
+            <p>Screen reader users are about <b>1% of traffic</b> but they still took a big part of our work because the client requires a strong emphasis on accessibility.</p>
             <p class="note">Nonprofit organizations are expected to enhance accessibility on their apps to comply with the Americans with Disabilities Act (ADA) if they are public accommodations or receive federal funding to avoid litigation.</p>
           </div>
         </div>
@@ -613,30 +613,26 @@
           <div>
             <h4>Focus differentiation</h4>
             <div class="prose">
-              <p>On TV, accessibility focus differs from interaction focus. The reader announces the element with accessibility focus.</p>
+              <p>On TV, accessibility-focus differs from interaction focus. The reader announces the element with accessibility-focus.</p>
               <p>The two platforms fail in opposite ways</p>
             </div>
           </div>
-          <div class="pair">
-            <div>
-              <h4>Android + TalkBack</h4>
-              <div class="prose">
-                <p><code>TVFocusGuideView</code> becomes an accessibility node and captures focus. It has to be replaced with a flat container, and the focus traps it provided have to be rewired by hand.</p>
-              </div>
-            </div>
-            <div>
-              <h4>tvOS + VoiceOver</h4>
-              <div class="prose">
-                <p>Doesn't announce when focus is moved programmatically. Explicit announcements are required, with delays calibrated per screen, and the reading gets cut off if it coincides with UI updates.</p>
-              </div>
-            </div>
+          <div>
+            <h4>Recurring symptoms</h4>
+            <ul class="marks plain">
+              <li>Elements not being targeted by accessibility-focus</li>
+              <li>Announced element not matching the focused element</li>
+              <li>Announcements getting cut off when UI updates</li>
+              <li>Elements not being announced on programmatic focus moves</li>
+            </ul>
           </div>
           <div>
             <h4>How we handled it</h4>
             <ul class="marks">
-              <li>Reader state lives in the focus context</li>
-              <li>Accessible container and Android-specific focus guards</li>
-              <li>PR policy with four evidence videos: Apple and Android, with the reader on and off</li>
+              <li>Custom reusable solutions (hooks / wrappers) "AccessibleContainer"</li>
+              <li>Pair every focus request with an accessibility-focus request</li>
+              <li>PR policy with evidence videos with the reader on and off</li>
+              <li>Explicit announcements triggered on complex views</li>
             </ul>
           </div>
         </div>
@@ -646,9 +642,9 @@
       <article class="challenge reveal" id="platforms" aria-labelledby="platforms-title">
         <div class="challenge-head">
           <p class="challenge-num" aria-hidden="true">3</p>
-          <h3 id="platforms-title">A single codebase for three platforms</h3>
+          <h3 id="platforms-title">A single codebase for three platforms: The dark side of it</h3>
           <div class="prose">
-            <p>The react-native-tvos APIs meant to simplify and unify focus handling across platforms were poorly documented or worked inconsistently.</p>
+            <p>The react-native-tvos APIs are meant to simplify and unify expected behaviors such as focus handling or accessibility across platforms.</p>
             <p class="note">Fixing one platform issue was prone to breaking another. The codebase may carry many platform-conditional branches to apply different solutions if not handled properly.</p>
           </div>
         </div>
@@ -678,9 +674,9 @@
                 </tr>
                 <tr>
                   <th scope="row">Screen reader</th>
-                  <td>VoiceOver</td>
-                  <td>TalkBack</td>
-                  <td>VoiceView</td>
+                  <td>VoiceOver: Cannot land on Text component</td>
+                  <td>TalkBack: Lands on Text component</td>
+                  <td>VoiceView: Similar to Android</td>
                 </tr>
               </tbody>
             </table>
