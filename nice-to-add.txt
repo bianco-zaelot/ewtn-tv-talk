@@ -1,0 +1,20 @@
+When you first start developing for TV, it might feel pretty familiar. But you will realize that there are quite a few differences.
+A lot of the assumptions we make when developing for mobile or web simply don't apply.
+
+### Hardware limitations
+
+One of the first things to keep in mind is the hardware.
+TVs look big and powerful from the outside, but internally, they're often much more limited than the phones we're used to developing for.
+For example, it's still common to find TVs with only 1 or 2 GB of RAM. They also tend to have slower CPUs, more limited GPU capabilities, constrained storage, and network handling that isn't always as reliable as what we get on modern mobile devices.
+
+### Why React Native for TV?
+
+React Native originally started as a mobile-first framework, but it has expanded well beyond mobile. Today, it's being used across different environments, including desktops, VR headsets, cars, and, of course, TVs.
+
+TV development has traditionally been pretty fragmented. Each platform has its own SDK and its own set of technologies. For example, you might use Swift or Objective-C for tvOS, Java or Kotlin for Android TV.
+So if you want to support multiple TV platforms, you can quickly end up maintaining several completely different implementations. That means duplicated work, different codebases, and teams having to solve essentially the same problems multiple times.
+
+React Native changes that approach.
+Instead of treating every TV operating system as a completely separate project, you can start with a cross-platform architecture and share a large part of the code and the development approach.
+Of course, this doesn't magically make all the platforms identical. There are still platform-specific differences and challenges.
+But it gives us a much more unified starting point, which can make supporting multiple TV platforms significantly easier.
